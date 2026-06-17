@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build an AI That Knows You — For Markus</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a18;
+    --paper: #f7f5f0;
+    --mid: #6b6860;
+    --rule: #e0dbd2;
+    --accent: #2d5a3d;
+    --accent-bg: #eaf0ec;
+    --warn: #7a4a1e;
+    --warn-bg: #f5ede4;
+    --white: #ffffff;
+    --blue: #1e3a5f;
+    --blue-bg: #e8eef5;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.75;
+    padding: 2rem 1.25rem 5rem;
+  }
+
+  .page { max-width: 620px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 1.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(2rem, 6vw, 2.8rem);
+    line-height: 1.12;
+    font-weight: 400;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 em { font-style: italic; color: var(--accent); }
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: var(--mid);
+    line-height: 1.65;
+    margin-bottom: 1.25rem;
+  }
+
+  .personal-note {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+    font-style: italic;
+    font-size: 0.92rem;
+    color: var(--mid);
+    line-height: 1.65;
+  }
+
+  /* ── Index ── */
+  .index {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .index .eyebrow { margin-bottom: 0.75rem; }
+  .index ol { list-style: none; }
+
+  .index ol li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.9rem;
+  }
+
+  .index ol li:last-child { border-bottom: none; }
+
+  .idx-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    min-width: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .idx-title { color: var(--ink); font-weight: 400; }
+
+  .idx-sub {
+    color: var(--mid);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 400px) { .idx-sub { display: none; } }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 2.25rem; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    line-height: 1.25;
+    margin-bottom: 0.75rem;
+  }
+
+  h3 {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 1rem 0 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'DM Mono', monospace;
+  }
+
+  p {
+    color: #2e2e2b;
+    margin-bottom: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  p:last-child { margin-bottom: 0; }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 2rem 0;
+  }
+
+  /* ── Concept blocks ── */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 1rem 0;
+  }
+
+  @media (max-width: 400px) {
+    .concept-grid { grid-template-columns: 1fr; }
+  }
+
+  .concept-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 0.8rem 1rem;
+  }
+
+  .concept-card .concept-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+
+  .concept-card .concept-title {
+    font-weight: 500;
+    font-size: 0.92rem;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+
+  .concept-card .concept-desc {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+
+  /* Push/pull comparison */
+  .pushpull {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 1rem 0;
+  }
+
+  @media (max-width: 400px) {
+    .pushpull { grid-template-columns: 1fr; }
+  }
+
+  .push-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 0.9rem 1rem;
+  }
+
+  .pull-card {
+    background: var(--accent-bg);
+    border: 1px solid var(--accent);
+    border-radius: 7px;
+    padding: 0.9rem 1rem;
+  }
+
+  .pp-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .push-card .pp-label { color: var(--mid); }
+  .pull-card .pp-label { color: var(--accent); }
+
+  .pp-title {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .push-card .pp-title { color: var(--ink); }
+  .pull-card .pp-title { color: var(--accent); }
+
+  .pp-desc {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.55;
+  }
+
+  /* Pull workflow steps */
+  .pull-steps {
+    list-style: none;
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .pull-steps li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: #2e2e2b;
+  }
+
+  .pull-steps li .step-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── Prompt box ── */
+  .prompt-box {
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 1rem 1.1rem;
+    margin: 1rem 0;
+  }
+
+  .prompt-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .prompt-box p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.75;
+    color: #2a3f2e;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  /* ── Note / tip box ── */
+  .note-box {
+    background: var(--warn-bg);
+    border-left: 3px solid var(--warn);
+    border-radius: 0 6px 6px 0;
+    padding: 0.85rem 1.1rem;
+    margin: 1rem 0;
+  }
+
+  .note-box p {
+    font-size: 0.88rem;
+    color: var(--warn);
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* Action box — "now do this" */
+  .action-box {
+    background: var(--blue-bg);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 6px 6px 0;
+    padding: 0.85rem 1.1rem;
+    margin: 1rem 0;
+  }
+
+  .action-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 0.4rem;
+  }
+
+  .action-box p {
+    font-size: 0.88rem;
+    color: var(--blue);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ── Role table ── */
+  .role-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+  }
+
+  .role-table th {
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding: 0 0.75rem 0.5rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-weight: 400;
+  }
+
+  .role-table td {
+    padding: 0.6rem 0.75rem 0.6rem 0;
+    border-bottom: 1px solid var(--rule);
+    color: #2e2e2b;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .role-table td:first-child {
+    font-weight: 500;
+    color: var(--ink);
+    width: 38%;
+    padding-right: 1rem;
+  }
+
+  /* ── Item cards ── */
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+
+  .item-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 7px;
+    padding: 0.8rem 1rem;
+  }
+
+  .item-card-title {
+    font-weight: 500;
+    font-size: 0.92rem;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+
+  .item-card-desc {
+    font-size: 0.82rem;
+    color: var(--mid);
+    line-height: 1.55;
+  }
+
+  .list-heading {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--mid);
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <p class="eyebrow">For Markus &nbsp;·&nbsp; June 2026</p>
+    <h1>Build an AI that<br><em>actually knows you</em></h1>
+    <p class="subtitle">How to turn a general AI into a set of personal advisors — one per area of your life — each with deep, lasting context about who you are and where you're going.</p>
+    <div class="personal-note">
+      I've been building this system for several months and it's genuinely changed how I use AI — and how clearly I think about my own life. I asked Claude to write this guide based on my experience, specifically for you. It's not something generic from the internet. Start wherever feels right, go at your own pace, and reach out if you want to talk through any of it.
+    </div>
+  </header>
+
+  <!-- INDEX -->
+  <div class="index">
+    <p class="eyebrow">Contents</p>
+    <ol>
+      <li><span class="idx-num">01</span><span class="idx-title">Lock down your privacy</span><span class="idx-sub">&nbsp;— before anything else</span></li>
+      <li><span class="idx-num">02</span><span class="idx-title">What is a prompt</span><span class="idx-sub">&nbsp;— the four building blocks</span></li>
+      <li><span class="idx-num">03</span><span class="idx-title">Push vs pull prompting</span><span class="idx-sub">&nbsp;— the key mindset shift</span></li>
+      <li><span class="idx-num">04</span><span class="idx-title">Map your life areas</span><span class="idx-sub">&nbsp;— one conversation to start</span></li>
+      <li><span class="idx-num">05</span><span class="idx-title">Interview yourself</span><span class="idx-sub">&nbsp;— one session per area, with the right role</span></li>
+      <li><span class="idx-num">06</span><span class="idx-title">Build your system prompts</span><span class="idx-sub">&nbsp;— interviews into permanent profiles</span></li>
+      <li><span class="idx-num">07</span><span class="idx-title">Create your Projects</span><span class="idx-sub">&nbsp;— persistent memory, not just folders</span></li>
+      <li><span class="idx-num">08</span><span class="idx-title">Language practice</span><span class="idx-sub">&nbsp;— a special use case</span></li>
+      <li><span class="idx-num">09</span><span class="idx-title">How Charles structured his</span><span class="idx-sub">&nbsp;— a real setup to inspire yours</span></li>
+    </ol>
+  </div>
+
+  <!-- 01 PRIVACY -->
+  <section class="section">
+    <p class="section-label">01</p>
+    <h2>Lock down your privacy first</h2>
+    <p>Before sharing anything personal with an AI, go to Settings and turn off conversation training. On ChatGPT: Settings → Data Controls → disable "Improve the model for everyone." On Grok: Settings → Privacy. This stops your conversations from being used to train future AI models.</p>
+    <p>Once that's done, what you share stays between you and the AI. Treat it like a private notebook. The more honest you are, the more useful it becomes — but you don't have to go deep on day one. Start with the areas that feel safe. Depth builds naturally.</p>
+  </section>
+
+  <hr>
+
+  <!-- 02 WHAT IS A PROMPT -->
+  <section class="section">
+    <p class="section-label">02</p>
+    <h2>What is a prompt</h2>
+    <p>A prompt is the instruction you give the AI. Most people write one vague sentence and wonder why the output is mediocre. A well-built prompt has four parts — and the difference in quality is enormous.</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-tag">Role</div>
+        <div class="concept-title">Tell it who to be</div>
+        <div class="concept-desc">A financial advisor? A language coach? A family therapist? The role shapes everything — vocabulary, depth, angle of questioning.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-tag">Context</div>
+        <div class="concept-title">Give it the background</div>
+        <div class="concept-desc">Who you are, your situation, your constraints, your history. The more specific, the better the advice.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-tag">Command</div>
+        <div class="concept-title">Tell it what to do</div>
+        <div class="concept-desc">Be precise. "Help me think through this" is weak. "Interview me about X and identify my blind spots" is actionable.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-tag">Format</div>
+        <div class="concept-title">Tell it how to deliver</div>
+        <div class="concept-desc">A PDF? A bullet list? A structured document with sections? Specify it or you'll get a wall of text.</div>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <p><strong>Tip:</strong> At the end of any session, ask the AI: "What prompt would have gotten us to this result faster?" It will tell you exactly what you should have said upfront. Do this a few times and your prompting instinct sharpens quickly. Notice that this is itself a pull move — you're making the AI extract better practice from the interaction.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 03 PUSH VS PULL -->
+  <section class="section">
+    <p class="section-label">03</p>
+    <h2>Push vs pull prompting</h2>
+    <p>This is the most important mindset shift in this guide. Most people push information at the AI and ask it to finish the job. There's a better way: make the AI pull the information out of you first.</p>
+
+    <div class="pushpull">
+      <div class="push-card">
+        <div class="pp-label">Push prompting</div>
+        <div class="pp-title">You do 80% of the work</div>
+        <div class="pp-desc">You write a long brief, explain everything upfront, then ask AI to complete the last 20%. Exhausting. Often incomplete because you don't know what you've left out.</div>
+      </div>
+      <div class="pull-card">
+        <div class="pp-label">Pull prompting ✦</div>
+        <div class="pp-title">AI does the heavy lifting</div>
+        <div class="pp-desc">You give it a role and an objective. It interviews you, extracts what it needs, then does the work. You just answer questions.</div>
+      </div>
+    </div>
+
+    <p>The pull workflow — which this entire guide is built around — looks like this:</p>
+
+    <ul class="pull-steps">
+      <li><span class="step-dot">1</span><span>Give it a <strong>role</strong> and <strong>context</strong> — who it is, who you are</span></li>
+      <li><span class="step-dot">2</span><span>Give it an <strong>outcome-based objective</strong> — what you need at the end</span></li>
+      <li><span class="step-dot">3</span><span>Ask it to <strong>interview you</strong> about everything it needs to know, one question at a time</span></li>
+      <li><span class="step-dot">4</span><span><strong>Answer the questions</strong> — use voice mode if you can, it's faster and more natural</span></li>
+      <li><span class="step-dot">5</span><span>Ask it to <strong>do the work</strong> and deliver in your chosen format (PDF, document, structured plan)</span></li>
+    </ul>
+
+    <div class="note-box">
+      <p>Voice mode tip: in ChatGPT, tap the headphone icon to switch to voice. Let the AI read its questions aloud, answer naturally, then switch back to text for the final output. The interview flows much better spoken than typed.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 04 MAP -->
+  <section class="section">
+    <p class="section-label">04</p>
+    <h2>Map your life areas</h2>
+    <p>Now you're ready to start. The first step is identifying which areas of your life deserve a dedicated AI advisor. You'll do this in a single conversation — using pull prompting.</p>
+
+    <div class="action-box">
+      <p class="action-label">Do this now</p>
+      <p>Open a new chat in ChatGPT. This is your first pull session. Paste the prompt below, then just answer its questions honestly. Don't overthink — go with your first instinct on each answer.</p>
+    </div>
+
+    <div class="prompt-box">
+      <p class="prompt-label">Opening prompt — paste this to start</p>
+      <p>I want to build a personal AI system where you act as a dedicated advisor in different areas of my life. First, help me identify those areas.
+
+Act as a personal development coach. Ask me a few questions to understand my situation — my age, where I live, work, finances, relationships, goals, and anything else relevant. Then suggest 5 to 7 life areas where having an AI advisor with deep personal context would be genuinely useful. One area per line, with a brief reason why.</p>
+    </div>
+
+    <p>Push back on suggestions that don't feel right. Merge or rename areas until the list feels like yours — not aspirational, not generic. Write down your final list somewhere — you'll need it in the next step.</p>
+  </section>
+
+  <hr>
+
+  <!-- 05 INTERVIEW -->
+  <section class="section">
+    <p class="section-label">05</p>
+    <h2>Interview yourself in each area</h2>
+    <p>For each area on your list, you're going to open a fresh chat and let the AI interview you. One area per session — don't try to combine them. Each interview should take 20 to 40 minutes and go wherever it needs to go.</p>
+
+    <div class="action-box">
+      <p class="action-label">Do this for each area</p>
+      <p>Open a new chat. Paste the prompt below, replacing [AREA] and [ROLE] with the relevant values from the table underneath. Then answer every question it asks — honestly, including the uncomfortable parts. When you feel you've covered everything, say "we're done."</p>
+    </div>
+
+    <div class="prompt-box">
+      <p class="prompt-label">Interview prompt — adapt the role and area each time</p>
+      <p>I want you to interview me about [AREA].
+
+Act as [ROLE]. Your goal is to understand me deeply — not just the facts, but how I think, what drives me, what I avoid, and what has shaped me. Ask one question at a time. Wait for my full answer before moving on.
+
+When I say we're done, synthesize everything into a structured profile document I can save and reuse.</p>
+    </div>
+
+    <table class="role-table">
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Role to assign</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Financial life</td>
+          <td>Personal wealth advisor who understands financial psychology, not just numbers</td>
+        </tr>
+        <tr>
+          <td>Family, relationships & history</td>
+          <td>Family therapist and systemic relationship counselor</td>
+        </tr>
+        <tr>
+          <td>Work & creative life</td>
+          <td>Executive coach with experience in creative careers and transitions</td>
+        </tr>
+        <tr>
+          <td>Future self & learning</td>
+          <td>Personal development strategist focused on unrealized potential</td>
+        </tr>
+        <tr>
+          <td>Food & health</td>
+          <td>Integrative health coach focused on sustainable habits and energy</td>
+        </tr>
+        <tr>
+          <td>Language practice</td>
+          <td>Language coach and conversation partner — speak to me in [language]</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note-box">
+      <p>Include the uncomfortable parts — the contradictions, the things you avoid, the patterns you keep repeating. That's where the useful context lives. The AI doesn't judge. It just gets more useful the more specific you are.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 06 SYSTEM PROMPTS -->
+  <section class="section">
+    <p class="section-label">06</p>
+    <h2>Build your system prompts</h2>
+    <p>At the end of each interview, when you say "we're done," use the closing prompt below to ask the AI to synthesize everything into a permanent profile document — your system prompt.</p>
+
+    <div class="prompt-box">
+      <p class="prompt-label">Step 1 — Before writing anything</p>
+      <p>Before writing the final document, give me a concise bullet list of the main topics and key insights from our conversation that you'll include in the system prompt. I'll confirm before you write it.</p>
+    </div>
+
+    <p>Review the bullet list. Correct anything that's missing or off. Then when you're happy with it, send this:</p>
+
+    <div class="prompt-box">
+      <p class="prompt-label">Step 2 — Generate the document</p>
+      <p>Looks good. Now create the full system prompt as a PDF. Go deep — the bullet list was just a preview. Title it clearly after the area we covered.</p>
+    </div>
+
+    <div class="note-box">
+      <p>Adapt the second prompt slightly depending on the area — a financial interview might add "include my relationship with money and risk tolerance"; a family interview might add "capture the key relationship dynamics." The AI knows what you covered. You're just nudging the focus. And remember: the PDF will be far more detailed than the bullet summary — that's the point of the two-step close.</p>
+    </div>
+
+    <div class="action-box">
+      <p class="action-label">Save it properly</p>
+      <p>Once the AI generates the document, save it to a dedicated folder on your phone or computer — something like "AI System Prompts." Label each file clearly: <em>Financial Life — System Prompt v1.pdf</em>. You'll be uploading these into your Projects in the next step. These are version one — they will evolve. A v2, v3 will follow naturally as your life and thinking change.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 07 PROJECTS -->
+  <section class="section">
+    <p class="section-label">07</p>
+    <h2>Create a Project for each area</h2>
+    <p>A Project is not just a folder. It's a persistent memory layer. You upload your system prompt PDFs into it once — and every conversation you start inside that project automatically inherits that context. You never re-explain yourself again.</p>
+
+    <div class="action-box">
+      <p class="action-label">Do this now — in ChatGPT</p>
+      <p>In the left sidebar, tap the pencil icon or look for <strong>New Project</strong>. Name it after one of your life areas — for example, "Financial Life." Once inside the project, look for <strong>Project Instructions</strong> or a paperclip/attachment icon — this is where you upload your system prompt PDFs. Upload the relevant files before starting any conversation. Then open your first conversation inside the project and notice: it already knows who you are.</p>
+    </div>
+
+    <p>One Project per life area. Inside each project you can have as many conversations as you want — one about a specific decision, another about a long-term question — all sharing the same foundation underneath.</p>
+    <p>Most projects benefit from having a master general profile as a common base, with the specialist profile for that area layered on top. The more context you give it upfront, the less you have to explain each time.</p>
+
+    <div class="note-box">
+      <p>Don't overthink the structure upfront. Start with 3 or 4 projects. You'll reorganize naturally as you use it — merging some, splitting others. The structure is never final and that's fine.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- 08 LANGUAGE -->
+  <section class="section">
+    <p class="section-label">08</p>
+    <h2>Language practice — a special use case</h2>
+    <p>ChatGPT handles mid-conversation language switching without changing any settings. This makes it uniquely powerful for language practice — you can ask it to interview you in Chinese about something that actually matters to you, correct your mistakes in real time, then switch to German in the same thread.</p>
+    <p>The trick is loading your personal context into the language project too. That way the AI picks topics relevant to your actual life — your work, a decision you're navigating, something you're reading — rather than generic textbook scenarios. Twenty minutes of Chinese conversation about something you genuinely care about is worth more than an hour of "describe your weekend."</p>
+
+    <div class="action-box">
+      <p class="action-label">How to start a language session</p>
+      <p>Open your Language Practice project. Start a new conversation with something like: <em>"Interview me in Mandarin for 20 minutes about [topic]. Correct my mistakes as we go, explain why, then continue the conversation. Stay in Chinese the whole time."</em> Switch to voice mode for a more natural flow. When you want to shift to German, just say so mid-conversation — no settings to change.</p>
+    </div>
+
+    <p>A dedicated language project with your general profile uploaded is enough to get started. The AI already knows who you are and what you care about — it will find the right topics without you having to invent them.</p>
+  </section>
+
+  <hr>
+
+  <!-- 09 CHARLES SETUP -->
+  <section class="section">
+    <p class="section-label">09</p>
+    <h2>How Charles structured his</h2>
+    <p>Built over several months of interviews, iterations, and honest conversations with AI. Use it as a starting point — not a blueprint. Your areas will reflect your life, not his.</p>
+
+    <p class="list-heading">His projects</p>
+    <div class="item-list">
+      <div class="item-card">
+        <div class="item-card-title">Family, Relationships & Life History</div>
+        <div class="item-card-desc">Family dynamics, friendships, childhood context, patterns in relationships, how the past shapes current decisions</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Language Practice & Training</div>
+        <div class="item-card-desc">Conversational practice in Chinese, English, and Spanish — topic-driven interviews, real-time correction, fluency maintenance</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Future Self & Learning</div>
+        <div class="item-card-desc">Long-term vision, who he's becoming, what he's learning, decisions about direction and growth</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Creative Work & Business</div>
+        <div class="item-card-desc">Creative strategy, business decisions, product development, the tension between artistic vision and commercial reality</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Financial Life & Investing</div>
+        <div class="item-card-desc">Current financial situation, savings strategy, investment decisions, long-term goals and constraints</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Food & Health</div>
+        <div class="item-card-desc">Nutrition, physical habits, energy, sleep — what sustains him through a demanding daily rhythm</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">How to Use AI</div>
+        <div class="item-card-desc">A meta-project: how to build and use AI well across all areas of life — prompt strategies, what works, what doesn't</div>
+      </div>
+    </div>
+
+    <p class="list-heading">His system prompts</p>
+    <div class="item-list">
+      <div class="item-card">
+        <div class="item-card-title">Main General Profile</div>
+        <div class="item-card-desc">Who he is across all areas — background, thinking style, values, blind spots. Lives in almost every project as the common foundation.</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Charles as a Father</div>
+        <div class="item-card-desc">Parenting philosophy, his three children's individual profiles, daily rhythms and non-negotiables</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Charles as an Artist</div>
+        <div class="item-card-desc">Creative identity, what drives him, the boundary between private creation and commercial work</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Charles as a Linguist</div>
+        <div class="item-card-desc">His four languages, how he acquired them, his children's multilingual development strategy</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Charles as Investor & Financial Strategist</div>
+        <div class="item-card-desc">Financial psychology, current situation, investment approach, short and long-term goals</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Charles as Engineer & Systems Thinker</div>
+        <div class="item-card-desc">How his engineering background shapes everything he creates and decides</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Charles 3D Business Strategy</div>
+        <div class="item-card-desc">His current business — products, platforms, revenue model, growth strategy</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Family Language Development Summary</div>
+        <div class="item-card-desc">A detailed plan for raising trilingual children as a single parent</div>
+      </div>
+      <div class="item-card">
+        <div class="item-card-title">Family Psychology Summary</div>
+        <div class="item-card-desc">The emotional dynamics of the family, recurring patterns, and frameworks for navigating them</div>
+      </div>
+    </div>
+
+    <div class="note-box" style="margin-top:1rem;">
+      <p>These are version one documents — starting points, not final answers. Some are already on v2. The system grows with you. Start with one honest interview and one project. Everything else follows from there.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Written by Charles with Claude (Anthropic) &nbsp;·&nbsp; For Markus &nbsp;·&nbsp; June 2026<br>
+    Works with ChatGPT, Claude, Grok, or any conversational AI
+  </footer>
+
+</div>
+</body>
+</html>
